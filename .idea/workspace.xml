@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="dc9bcb92-81cd-4aab-aa8d-babe53529138" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go Application" />
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" path="D:\Go" />
+  <component name="ProjectId" id="1lfmwt4GZQCIv44jtwfhPOGW9Rn" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../../../houyj.pdf" />
+    <property name="restartRequiresConfirmation" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Projects\go\src\github.com\aurora\Filestore-server\handler" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build github.com/aurora/Filestore-server">
+    <configuration name="go build github.com/aurora/Filestore-server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="Filestore-server" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <filePath value="$PROJECT_DIR$/main.go" />
+      <package value="github.com/aurora/Filestore-server" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestFileMD5 in github.com/aurora/Filestore-server/utils (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="Filestore-server" />
+      <working_directory value="$PROJECT_DIR$/utils" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/aurora/Filestore-server/utils" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestFileMD5\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestFileSha1 in github.com/aurora/Filestore-server/utils (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="Filestore-server" />
+      <working_directory value="$PROJECT_DIR$/utils" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/aurora/Filestore-server/utils" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestFileSha1\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestFileSha1 in github.com/aurora/Filestore-server/utils (2)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="Filestore-server" />
+      <working_directory value="$PROJECT_DIR$/utils" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/aurora/Filestore-server/utils" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestFileSha1\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestFileSha1 in github.com/aurora/Filestore-server/utils" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="Filestore-server" />
+      <working_directory value="$PROJECT_DIR$/utils" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/aurora/Filestore-server/utils" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestFileSha1\E$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build github.com/aurora/Filestore-server" />
+        <item itemvalue="Go Test.TestFileSha1 in github.com/aurora/Filestore-server/utils (2)" />
+        <item itemvalue="Go Test.TestFileSha1 in github.com/aurora/Filestore-server/utils (1)" />
+        <item itemvalue="Go Test.TestFileMD5 in github.com/aurora/Filestore-server/utils (1)" />
+        <item itemvalue="Go Test.TestFileSha1 in github.com/aurora/Filestore-server/utils" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="752" y="353" key="#Go_Modules" timestamp="1607996926250">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="752" y="353" key="#Go_Modules/0.0.1920.1040@0.0.1920.1040" timestamp="1607996926250" />
+    <state x="699" y="309" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1608098962766">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="699" y="309" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1608098962766" />
+    <state width="733" height="646" key="DebuggerActiveHint" timestamp="1608108066036">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="733" height="646" key="DebuggerActiveHint/0.0.1920.1040@0.0.1920.1040" timestamp="1608108066036" />
+    <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1607998980223">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1607998980223" />
+    <state width="1877" height="339" key="GridCell.Tab.0.bottom" timestamp="1608110625409">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="339" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1608110625409" />
+    <state width="1877" height="339" key="GridCell.Tab.0.center" timestamp="1608110625409">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="339" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1608110625409" />
+    <state width="1877" height="339" key="GridCell.Tab.0.left" timestamp="1608110625409">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="339" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1608110625409" />
+    <state width="1877" height="339" key="GridCell.Tab.0.right" timestamp="1608110625409">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="339" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1608110625409" />
+    <state width="1877" height="339" key="GridCell.Tab.1.bottom" timestamp="1608110625409">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="339" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1608110625409" />
+    <state width="1877" height="339" key="GridCell.Tab.1.center" timestamp="1608110625409">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="339" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1608110625409" />
+    <state width="1877" height="339" key="GridCell.Tab.1.left" timestamp="1608110625409">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="339" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1608110625409" />
+    <state width="1877" height="339" key="GridCell.Tab.1.right" timestamp="1608110625409">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="339" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1608110625409" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1608087947550">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1608087947550" />
+  </component>
+</project>

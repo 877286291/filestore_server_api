@@ -1,0 +1,48 @@
+POST http://localhost:8080/upload
+Accept: */*
+Cache-Control: no-cache
+
+--null
+
+
+< E:\houyj.pdf
+--null--
+
+###
+
+POST http://localhost:8080/upload
+Accept: */*
+Cache-Control: no-cache
+
+--null
+
+
+< E:\houyj.pdf
+--null--
+
+###
+
+POST http://localhost:8080/upload
+Accept: */*
+Cache-Control: no-cache
+
+--null
+
+
+< E:\houyj.pdf
+--null--
+
+###
+
+POST http://localhost:8080/upload?file=
+Accept: */*
+Cache-Control: no-cache
+
+--null
+
+
+< E:\houyj.pdf
+--null--
+
+###
+
