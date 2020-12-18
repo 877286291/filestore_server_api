@@ -1,13 +1,9 @@
 package meta
 
-import (
-	"fmt"
-)
-
 type FileMeta struct {
 	FileSha1 string
 	FileName string
-	FileSize int64
+	FileSize string
 	Location string
 	UploadAt string
 }
@@ -22,7 +18,6 @@ func UpdateFileMeta(meta FileMeta) {
 }
 func GetFileMeta(fileSha1 string) FileMeta {
 	if meta, ok := fileMetas[fileSha1]; ok {
-		fmt.Println(meta)
 		return meta
 	}
 	return FileMeta{}
@@ -43,5 +38,8 @@ func GetListFileMetas(count int) []FileMeta {
 		metaArray = append(metaArray, v)
 	}
 	SortByUploadTime(metaArray)
-	return metaArray
+	if count > len(metaArray) {
+		return metaArray
+	}
+	return metaArray[0:count]
 }
