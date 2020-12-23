@@ -42,11 +42,11 @@ func FileMD5(file *os.File) string {
 	return hex.EncodeToString(_md5.Sum(nil))
 }
 func FileSizeConversion(filesize int) string {
-	if filesize/1024/1024/1024 > 1 {
+	if filesize/1024/1024/1024 >= 1 {
 		return strconv.Itoa(filesize/1024/1024/1024) + "G"
-	} else if filesize/1024/1024 > 1 {
+	} else if filesize/1024/1024 >= 1 {
 		return strconv.Itoa(filesize/1024/1024) + "M"
-	} else if filesize/1024 > 1 {
+	} else if filesize/1024 >= 1 {
 		return strconv.Itoa(filesize/1024) + "K"
 	}
 	return strconv.Itoa(filesize) + "B"

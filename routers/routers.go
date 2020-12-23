@@ -10,5 +10,6 @@ func InitRouters(e *gin.Engine) {
 	e.GET("/file/meta", handler.GetFileMetaHandler)
 	e.GET("/file/list", handler.FileQueryHandler)
 	e.GET("/file/download", handler.DownloadHandler)
-	e.DELETE("/file/delete", handler.DeleteHandler)
+	e.PUT("/file/update", handler.FileMetaUpdateHandler)
+	e.DELETE("/file/delete", handler.FileDeleteHandler)
 }

@@ -43,3 +43,6 @@ func GetListFileMetas(count int) []FileMeta {
 	}
 	return metaArray[0:count]
 }
+func RemoveFileMeta(fileSha1 string) {
+	delete(fileMetas, fileSha1)
+}
