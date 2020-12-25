@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
-	"fmt"
 	"hash"
 	"io"
 	"os"
@@ -33,7 +32,6 @@ func Sha1(data []byte) string {
 func FileSha1(file *os.File) string {
 	_sha1 := sha1.New()
 	_, _ = io.Copy(_sha1, file)
-	fmt.Printf("%x\n", _sha1.Sum(nil))
 	return hex.EncodeToString(_sha1.Sum(nil))
 }
 func FileMD5(file *os.File) string {
