@@ -11,6 +11,8 @@ import (
 	"strconv"
 )
 
+const SALT = "#8s4S"
+
 type Sha1Stream struct {
 	_sha1 hash.Hash
 }
@@ -26,7 +28,7 @@ func (s *Sha1Stream) Sum() string {
 }
 func Sha1(data []byte) string {
 	_sha1 := sha1.New()
-	_sha1.Write(data)
+	_sha1.Write([]byte(string(data) + SALT))
 	return hex.EncodeToString(_sha1.Sum([]byte("")))
 }
 func FileSha1(file *os.File) string {

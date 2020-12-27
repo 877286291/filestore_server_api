@@ -23,7 +23,7 @@ func UploadHandler(c *gin.Context) {
 	written, err := io.Copy(newFile, content)
 	_, _ = newFile.Seek(0, 0)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"msg": "文件上传失败", "size": utils.FileSizeConversion(int(written))})
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件上传失败", "size": utils.FileSizeConversion(int(written))})
 		return
 	}
 	fileMeta := meta.FileMeta{
@@ -34,26 +34,26 @@ func UploadHandler(c *gin.Context) {
 		UploadAt: time.Now().Format("2006-01-02 15:04:05"),
 	}
 	_ = meta.UpdateFileMetaDB(fileMeta)
-	c.IndentedJSON(http.StatusOK, gin.H{"msg": "文件上传成功", "size": utils.FileSizeConversion(int(file.Size))})
+	c.JSON(http.StatusOK, gin.H{"msg": "文件上传成功", "size": utils.FileSizeConversion(int(file.Size))})
 }
 func GetFileMetaHandler(c *gin.Context) {
 	fileHash := c.DefaultQuery("filehash", "")
 	if fileHash == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"msg": "请检查请求参数"})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "请检查请求参数"})
 		return
 	}
 	fileMeta, err := meta.GetFileMetaDB(fileHash)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"msg": "文件信息获取失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件信息获取失败"})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"msg": "文件信息查询成功", "data": fileMeta})
+	c.JSON(http.StatusOK, gin.H{"msg": "文件信息查询成功", "data": fileMeta})
 }
 func FileQueryHandler(c *gin.Context) {
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "1"))
 	ErrHandler(err)
 	metas := meta.GetListFileMetas(limit)
-	c.IndentedJSON(http.StatusOK, gin.H{"msg": "查询成功", "data": metas})
+	c.JSON(http.StatusOK, gin.H{"msg": "查询成功", "data": metas})
 }
 func DownloadHandler(c *gin.Context) {
 	fileSha1 := c.DefaultQuery("filehash", "")
@@ -76,30 +76,30 @@ func FileMetaUpdateHandler(c *gin.Context) {
 	fileSha1 := c.DefaultQuery("filehash", "")
 	newFileName := c.DefaultQuery("filename", "")
 	if opType != "0" || fileSha1 == "" || newFileName == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"msg": "请检查请求参数"})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "请检查请求参数"})
 		return
 	}
 	curFileMeta, err := meta.GetFileMetaDB(fileSha1)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"msg": "文件信息更新失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件信息更新失败"})
 		return
 	}
 	curFileMeta.FileName = newFileName
 	_ = meta.UpdateFileMetaDB(curFileMeta)
-	c.IndentedJSON(http.StatusOK, gin.H{"msg": "文件信息更新成功", "data": curFileMeta})
+	c.JSON(http.StatusOK, gin.H{"msg": "文件信息更新成功", "data": curFileMeta})
 }
 
 func FileDeleteHandler(c *gin.Context) {
 	fileSha1 := c.DefaultQuery("filehash", "")
 	fileMeta, err := meta.GetFileMetaDB(fileSha1)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"msg": "文件删除失败!"})
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件删除失败!"})
 		return
 	}
 	_ = os.Remove(fileMeta.Location)
 	if meta.RemoveFileMetaDB(fileSha1) {
-		c.IndentedJSON(http.StatusOK, gin.H{"msg": "文件删除成功!"})
+		c.JSON(http.StatusOK, gin.H{"msg": "文件删除成功!"})
 		return
 	}
-	c.IndentedJSON(http.StatusInternalServerError, gin.H{"msg": "文件删除失败!"})
+	c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件删除失败!"})
 }
