@@ -29,7 +29,7 @@ func GetFileMeta(fileHash string) (*TableFile, error) {
 	}
 	return &tfile, nil
 }
-func OnnFileUploadFinished(fileHash, filename string, filesize int64, fileAddr string) bool {
+func FileUploadFinished(fileHash, filename string, filesize int64, fileAddr string) bool {
 	stmt, err := mysql.DBConn().Prepare(
 		"insert ignore into tbl_file(`file_sha1`,`file_name`,`file_size`,`file_addr`,`status`) value (?,?,?,?,1)",
 	)

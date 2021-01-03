@@ -6,6 +6,15 @@ import (
 	"log"
 )
 
+type User struct {
+	UserName     string
+	Email        string
+	Phone        string
+	SignUpAt     string
+	LastActiveAt string
+	Status       int
+}
+
 func UserSignUp(username, password string) bool {
 	stmt, err := mysql.DBConn().Prepare(
 		"insert ignore into tbl_user(user_name,user_pwd) values(?,?)",
@@ -51,4 +60,22 @@ func UserSignIn(username, encPassword string) (ok bool, token string) {
 		return true, token
 	}
 	return
+}
+func GetUserInfo(username string) (User, error) {
+	user := User{}
+	stmt, err := mysql.DBConn().Prepare(
+		"select user_name,email,phone,signup_at,last_active,status from tbl_user where user_name=? limit 1",
+	)
+	if err != nil {
+		log.Println(err)
+		return user, err
+	}
+	defer stmt.Close()
+	err = stmt.QueryRow(username).Scan(&user.UserName, &user.Email, &user.Phone, &user.SignUpAt, &user.LastActiveAt, &user.Status)
+	if err != nil {
+		log.Println(err)
+		return user, err
+	}
+	return user, nil
+
 }

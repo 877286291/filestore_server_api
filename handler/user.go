@@ -31,3 +31,23 @@ func SignInHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusInternalServerError, gin.H{"msg": "登录失败！"})
 }
+func UserInfoHandler(c *gin.Context) {
+
+	username := c.Query("username")
+	token := c.GetHeader("token")
+	parseToken, err := utils.ParseToken(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"msg": "认证失败"})
+		return
+	}
+	if username == parseToken.Username {
+		userInfo, err := db.GetUserInfo(username)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"msg": "内部服务器错误"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"msg": "用户信息查询成功", "data": userInfo})
+		return
+	}
+	c.JSON(http.StatusForbidden, gin.H{"msg": "非法请求"})
+}

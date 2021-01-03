@@ -11,6 +11,7 @@ func InitRouters(e *gin.Engine) {
 	fileRouter.Use(middleware.JWT())
 	{
 		fileRouter.POST("/upload", handler.UploadHandler)
+		fileRouter.POST("/fastUpload", handler.FastUploadHandler)
 		fileRouter.GET("/meta", handler.GetFileMetaHandler)
 		fileRouter.GET("/list", handler.FileQueryHandler)
 		fileRouter.GET("/download", handler.DownloadHandler)
@@ -21,5 +22,6 @@ func InitRouters(e *gin.Engine) {
 	{
 		userRouter.POST("/signUp", handler.SignUpHandler)
 		userRouter.POST("/signIn", handler.SignInHandler)
+		userRouter.GET("/info", middleware.JWT(), handler.UserInfoHandler)
 	}
 }

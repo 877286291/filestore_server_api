@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/aurora/Filestore-server/db"
 	"github.com/aurora/Filestore-server/meta"
 	"github.com/aurora/Filestore-server/utils"
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 )
 
 func UploadHandler(c *gin.Context) {
+	claims, _ := utils.ParseToken(c.GetHeader("token"))
 	file, err := c.FormFile("file")
 	ErrHandler(err)
 	newFile, err := os.Create(file.Filename)
@@ -34,7 +36,11 @@ func UploadHandler(c *gin.Context) {
 		UploadAt: time.Now().Format("2006-01-02 15:04:05"),
 	}
 	_ = meta.UpdateFileMetaDB(fileMeta)
-	c.JSON(http.StatusOK, gin.H{"msg": "文件上传成功", "size": utils.FileSizeConversion(int(file.Size))})
+	if db.UserFileUploaded(claims.Username, fileMeta.FileSha1, fileMeta.FileName, fileMeta.FileSize) {
+		c.JSON(http.StatusOK, gin.H{"msg": "文件上传成功", "size": utils.FileSizeConversion(int(file.Size))})
+		return
+	}
+	c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件上传失败"})
 }
 func GetFileMetaHandler(c *gin.Context) {
 	fileHash := c.DefaultQuery("filehash", "")
@@ -52,8 +58,13 @@ func GetFileMetaHandler(c *gin.Context) {
 func FileQueryHandler(c *gin.Context) {
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "1"))
 	ErrHandler(err)
-	metas := meta.GetListFileMetas(limit)
-	c.JSON(http.StatusOK, gin.H{"msg": "查询成功", "data": metas})
+	claims, _ := utils.ParseToken(c.GetHeader("token"))
+	metas, err := db.GetUserFileMetas(claims.Username, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件信息获取失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"msg": "文件信息查询成功", "data": metas})
 }
 func DownloadHandler(c *gin.Context) {
 	fileSha1 := c.DefaultQuery("filehash", "")
@@ -102,4 +113,20 @@ func FileDeleteHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件删除失败!"})
+}
+func FastUploadHandler(c *gin.Context) {
+	claims, _ := utils.ParseToken(c.GetHeader("token"))
+	fileHash := c.PostForm("filehash")
+	filename := c.PostForm("filename")
+	fileMeta, err := meta.GetFileMetaDB(fileHash)
+	if err != nil || fileMeta.FileSha1 == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "秒传失败"})
+		return
+	}
+	if db.UserFileUploaded(claims.Username, fileMeta.FileSha1, filename, fileMeta.FileSize) {
+		fileMeta.FileName = filename
+		c.JSON(http.StatusOK, gin.H{"msg": "秒传成功", "data": fileMeta})
+		return
+	}
+	c.JSON(http.StatusInternalServerError, gin.H{"msg": "秒传失败，请稍后重试"})
 }
