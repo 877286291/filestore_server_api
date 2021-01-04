@@ -17,6 +17,12 @@ func InitRouters(e *gin.Engine) {
 		fileRouter.GET("/download", handler.DownloadHandler)
 		fileRouter.PUT("/update", handler.FileMetaUpdateHandler)
 		fileRouter.DELETE("/delete", handler.FileDeleteHandler)
+		mpUpload := fileRouter.Group("/mpupload")
+		{
+			mpUpload.POST("/init", handler.InitMultipartUploadHandler)
+			mpUpload.POST("/uppart", handler.UploadPartHandler)
+			mpUpload.POST("/complete", handler.CompleteUploadHandler)
+		}
 	}
 	userRouter := e.Group("/user")
 	{
