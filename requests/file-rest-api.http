@@ -1,0 +1,28 @@
+POST http://{{host}}:{{port}}/file/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="element-name"
+Content-Type: text/plain
+
+Name
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="tmp"
+Content-Type: application/json
+
+< http-client.env.json
+--WebAppBoundary--
+
+###
+POST http://{{host}}:{{port}}/file/fastUpload
+Content-Type: application/x-www-form-urlencoded
+
+filehash={{filehash}}&filename={{filename}}
+
+###
+GET http://{{host}}:{{port}}/user/info?username={{username}}
+Accept: application/json
+Authorization:{{auth_token}}
+
+###

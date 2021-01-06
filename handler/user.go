@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/aurora/Filestore-server/db"
 	"github.com/aurora/Filestore-server/utils"
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,7 @@ func SignUpHandler(c *gin.Context) {
 func SignInHandler(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	fmt.Println(username, password)
 	encPassword := utils.Sha1([]byte(password))
 	if ok, token := db.UserSignIn(username, encPassword); ok {
 		c.JSON(http.StatusOK, gin.H{"msg": "登录成功", "token": token})
@@ -34,7 +36,7 @@ func SignInHandler(c *gin.Context) {
 func UserInfoHandler(c *gin.Context) {
 
 	username := c.Query("username")
-	token := c.GetHeader("token")
+	token := c.GetHeader("Authorization")
 	parseToken, err := utils.ParseToken(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"msg": "认证失败"})

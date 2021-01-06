@@ -11,7 +11,7 @@ func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
 		code = http.StatusOK
-		token := c.GetHeader("token")
+		token := c.GetHeader("Authorization")
 		if token == "" {
 			code = http.StatusBadRequest
 		} else {

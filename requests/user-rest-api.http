@@ -1,0 +1,17 @@
+POST http://{{host}}:{{port}}/user/signUp
+Content-Type: application/x-www-form-urlencoded
+
+username=test&password=123456
+
+###
+POST http://{{host}}:{{port}}/user/signIn
+Content-Type: application/x-www-form-urlencoded
+
+username={{username}}&password={{password}}
+
+###
+GET http://{{host}}:{{port}}/user/info?username={{username}}
+Accept: application/json
+Authorization:{{auth_token}}
+
+###

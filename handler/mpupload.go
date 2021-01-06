@@ -66,7 +66,7 @@ func UploadPartHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "chkidx_" + chunkIndex + "上传完成"})
 }
 func CompleteUploadHandler(c *gin.Context) {
-	claims, _ := utils.ParseToken(c.GetHeader("token"))
+	claims, _ := utils.ParseToken(c.GetHeader("Authorization"))
 	uploadID := c.PostForm("uploadid")
 	fileHash := c.PostForm("filehash")
 	filename := c.PostForm("filename")

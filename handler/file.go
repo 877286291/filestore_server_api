@@ -13,7 +13,7 @@ import (
 )
 
 func UploadHandler(c *gin.Context) {
-	claims, _ := utils.ParseToken(c.GetHeader("token"))
+	claims, _ := utils.ParseToken(c.GetHeader("Authorization"))
 	file, err := c.FormFile("file")
 	ErrHandler(err)
 	newFile, err := os.Create(file.Filename)
@@ -57,7 +57,7 @@ func GetFileMetaHandler(c *gin.Context) {
 func FileQueryHandler(c *gin.Context) {
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "1"))
 	ErrHandler(err)
-	claims, _ := utils.ParseToken(c.GetHeader("token"))
+	claims, _ := utils.ParseToken(c.GetHeader("Authorization"))
 	metas, err := db.GetUserFileMetas(claims.Username, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件信息获取失败"})
@@ -114,7 +114,7 @@ func FileDeleteHandler(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件删除失败!"})
 }
 func FastUploadHandler(c *gin.Context) {
-	claims, _ := utils.ParseToken(c.GetHeader("token"))
+	claims, _ := utils.ParseToken(c.GetHeader("Authorization"))
 	fileHash := c.PostForm("filehash")
 	filename := c.PostForm("filename")
 	fileMeta, err := meta.GetFileMetaDB(fileHash)
