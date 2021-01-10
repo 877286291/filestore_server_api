@@ -26,6 +26,10 @@ type MultipartUploadInfo struct {
 	ChunkCount int
 }
 
+const (
+	filePath = "data"
+)
+
 func InitMultipartUploadHandler(c *gin.Context) {
 	fileHash := c.PostForm("filehash")
 	filename := c.PostForm("filename")
@@ -45,6 +49,8 @@ func InitMultipartUploadHandler(c *gin.Context) {
 		"FileName":   upInfo.FileName,
 		"FileSize":   upInfo.FileSize,
 	})
+	pwd, _ := os.Getwd()
+	_ = os.MkdirAll(filepath.Join(pwd, filePath, upInfo.UploadID), 0777)
 	c.JSON(http.StatusOK, gin.H{"msg": "分块上传文件信息初始化成功", "data": upInfo})
 }
 func UploadPartHandler(c *gin.Context) {
@@ -52,9 +58,6 @@ func UploadPartHandler(c *gin.Context) {
 	chunkIndex := c.PostForm("index")
 	blockFile, err := c.FormFile("blockfile")
 	rConn := rdb.RedisConn()
-	pwd, _ := os.Getwd()
-	filePath := "data/" + uploadID
-	_ = os.MkdirAll(filepath.Join(pwd, filePath), 0777)
 	fd, err := os.Create(filepath.Join(filePath, chunkIndex))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "创建文件请求被拒绝，权限不足"})
@@ -100,4 +103,16 @@ func CompleteUploadHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"msg": "文件上传成功", "size": utils.FileSizeConversion(fileSize)})
 		return
 	}
+}
+func CancelUploadHandler(c *gin.Context) {
+	uploadId := c.Query("uploadid")
+	pwd, _ := os.Getwd()
+	err := os.RemoveAll(filepath.Join(pwd, "data", uploadId))
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"msg": "上传任务取消失败"})
+		return
+	}
+	rConn := rdb.RedisConn()
+	rConn.Del("MP_" + uploadId)
+	c.JSON(http.StatusOK, gin.H{"msg": "上传任务取消成功"})
 }

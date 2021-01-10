@@ -62,7 +62,7 @@ Authorization: {{auth_token}}
 Content-Disposition: form-data; name="uploadid"
 Content-Type: text/plain
 
-71e5b43c-2e62-424c-9cc4-926026762564
+{{uploadID}}
 --WebAppBoundary
 Content-Disposition: form-data; name="index"
 Content-Type: text/plain
@@ -80,6 +80,11 @@ POST http://{{host}}:{{port}}/file/mpupload/complete
 Content-Type: application/x-www-form-urlencoded
 Authorization: {{auth_token}}
 
-uploadid=71e5b43c-2e62-424c-9cc4-926026762564&filehash={{filehash}}&filename={{filename}}&filesize={{filesize}}
+uploadid={{uploadID}}&filehash={{filehash}}&filename={{filename}}&filesize={{filesize}}
+
+###
+GET http://{{host}}:{{port}}/file/mpupload/cancel?uploadid={{uploadID}}
+Accept: application/json
+Authorization: {{auth_token}}
 
 ###

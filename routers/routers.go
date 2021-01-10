@@ -22,6 +22,7 @@ func InitRouters(e *gin.Engine) {
 			mpUpload.POST("/init", handler.InitMultipartUploadHandler)
 			mpUpload.POST("/uppart", handler.UploadPartHandler)
 			mpUpload.POST("/complete", handler.CompleteUploadHandler)
+			mpUpload.GET("/cancel", handler.CancelUploadHandler)
 		}
 	}
 	userRouter := e.Group("/user")
