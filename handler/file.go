@@ -36,7 +36,7 @@ func UploadHandler(c *gin.Context) {
 		UploadAt: time.Now().Format("2006-01-02 15:04:05"),
 	}
 	if meta.UpdateFileMetaDB(fileMeta) && db.UserFileUploaded(claims.Username, fileMeta.FileSha1, fileMeta.FileName, fileMeta.FileSize) {
-		c.JSON(http.StatusOK, gin.H{"msg": "文件上传成功", "size": utils.FileSizeConversion(int(file.Size))})
+		c.JSON(http.StatusOK, gin.H{"msg": "文件上传成功", "data": fileMeta})
 		return
 	}
 	c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件上传失败"})

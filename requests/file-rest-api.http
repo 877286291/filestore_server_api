@@ -3,26 +3,83 @@ Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: {{auth_token}}
 
 --WebAppBoundary
-Content-Disposition: form-data; name="element-name"
-Content-Type: text/plain
-
-Name
---WebAppBoundary
 Content-Disposition: form-data; name="file"; filename="tmp"
 Content-Type: application/json
 
-< http-client.env.json
+< tmp
 --WebAppBoundary--
 
 ###
 POST http://{{host}}:{{port}}/file/fastUpload
 Content-Type: application/x-www-form-urlencoded
+Authorization: {{auth_token}}
 
 filehash={{filehash}}&filename={{filename}}
 
 ###
-GET http://{{host}}:{{port}}/user/info?username={{username}}
+GET http://{{host}}:{{port}}/file/meta?filehash={{filehash}}
 Accept: application/json
 Authorization:{{auth_token}}
+
+###
+GET http://{{host}}:{{port}}/file/list?limit={{limit}}
+Accept: application/json
+Authorization:{{auth_token}}
+
+###
+GET http://{{host}}:{{port}}/file/list
+Accept: application/json
+Authorization:{{auth_token}}
+
+###
+GET http://{{host}}:{{port}}/file/download?filehash={{filehash}}
+Accept: application/json
+Authorization:{{auth_token}}
+
+###
+PUT http://{{host}}:{{port}}/file/update?filehash={{filehash}}&filename={{newFilename}}
+Accept: application/json
+Authorization:{{auth_token}}
+
+###
+DELETE http://{{host}}:{{port}}/file/delete?filehash={{filehash}}
+Accept: application/json
+Authorization:{{auth_token}}
+
+###
+POST http://{{host}}:{{port}}/file/mpupload/init
+Content-Type: application/x-www-form-urlencoded
+Authorization: {{auth_token}}
+
+filehash={{filehash}}&filename={{filename}}&filesize={{filesize}}
+
+###
+POST http://{{host}}:{{port}}/file/mpupload/uppart
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="uploadid"
+Content-Type: text/plain
+
+71e5b43c-2e62-424c-9cc4-926026762564
+--WebAppBoundary
+Content-Disposition: form-data; name="index"
+Content-Type: text/plain
+
+1
+--WebAppBoundary
+Content-Disposition: form-data; name="blockfile"; filename="tmp"
+Content-Type: application/json
+
+< tmp
+--WebAppBoundary--
+
+###
+POST http://{{host}}:{{port}}/file/mpupload/complete
+Content-Type: application/x-www-form-urlencoded
+Authorization: {{auth_token}}
+
+uploadid=71e5b43c-2e62-424c-9cc4-926026762564&filehash={{filehash}}&filename={{filename}}&filesize={{filesize}}
 
 ###

@@ -11,7 +11,7 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -45,16 +45,17 @@ func InitMultipartUploadHandler(c *gin.Context) {
 		"FileName":   upInfo.FileName,
 		"FileSize":   upInfo.FileSize,
 	})
-	c.JSON(http.StatusOK, gin.H{"msg": "分块上传文件信息初始化成功"})
+	c.JSON(http.StatusOK, gin.H{"msg": "分块上传文件信息初始化成功", "data": upInfo})
 }
 func UploadPartHandler(c *gin.Context) {
 	uploadID := c.PostForm("uploadid")
 	chunkIndex := c.PostForm("index")
 	blockFile, err := c.FormFile("blockfile")
 	rConn := rdb.RedisConn()
-	filePath := "data/" + uploadID + "/" + chunkIndex
-	_ = os.MkdirAll(path.Dir(filePath), 0777)
-	fd, err := os.Create(filePath)
+	pwd, _ := os.Getwd()
+	filePath := "data/" + uploadID
+	_ = os.MkdirAll(filepath.Join(pwd, filePath), 0777)
+	fd, err := os.Create(filepath.Join(filePath, chunkIndex))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "创建文件请求被拒绝，权限不足"})
 		return
