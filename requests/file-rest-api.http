@@ -67,7 +67,7 @@ Content-Type: text/plain
 Content-Disposition: form-data; name="index"
 Content-Type: text/plain
 
-1
+2
 --WebAppBoundary
 Content-Disposition: form-data; name="blockfile"; filename="tmp"
 Content-Type: application/json
@@ -84,6 +84,11 @@ uploadid={{uploadID}}&filehash={{filehash}}&filename={{filename}}&filesize={{fil
 
 ###
 GET http://{{host}}:{{port}}/file/mpupload/cancel?uploadid={{uploadID}}
+Accept: application/json
+Authorization: {{auth_token}}
+
+###
+GET http://{{host}}:{{port}}/file/mpupload/uploadStatus?uploadid={{uploadID}}
 Accept: application/json
 Authorization: {{auth_token}}
 

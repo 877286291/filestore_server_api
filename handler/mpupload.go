@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/aurora/Filestore-server/db"
 	rdb "github.com/aurora/Filestore-server/db/redis"
 	"github.com/aurora/Filestore-server/meta"
@@ -8,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"io"
+	"io/ioutil"
 	"math"
 	"net/http"
 	"os"
@@ -18,12 +20,13 @@ import (
 )
 
 type MultipartUploadInfo struct {
-	FileHash   string
-	FileName   string
-	FileSize   int
-	UploadID   string
-	ChunkSize  int
-	ChunkCount int
+	FileHash    string
+	FileName    string
+	FileSize    int
+	UploadID    string
+	ChunkSize   int
+	ChunkCount  int
+	ChunkExists []int
 }
 
 const (
@@ -36,12 +39,13 @@ func InitMultipartUploadHandler(c *gin.Context) {
 	filesize, _ := strconv.Atoi(c.PostForm("filesize"))
 	rConn := rdb.RedisConn()
 	upInfo := MultipartUploadInfo{
-		FileHash:   fileHash,
-		FileName:   filename,
-		FileSize:   filesize,
-		UploadID:   uuid.New().String(),
-		ChunkSize:  5 * 1024 * 1024,
-		ChunkCount: int(math.Ceil(float64(filesize / (5 * 1024 * 1024)))),
+		FileHash:    fileHash,
+		FileName:    filename,
+		FileSize:    filesize,
+		UploadID:    uuid.New().String(),
+		ChunkSize:   5 * 1024 * 1024,
+		ChunkCount:  int(math.Ceil(float64(filesize / (5 * 1024 * 1024)))),
+		ChunkExists: make([]int, 0),
 	}
 	rConn.HMSet("MP_"+upInfo.UploadID, map[string]interface{}{
 		"chunkCount": upInfo.ChunkCount,
@@ -58,7 +62,7 @@ func UploadPartHandler(c *gin.Context) {
 	chunkIndex := c.PostForm("index")
 	blockFile, err := c.FormFile("blockfile")
 	rConn := rdb.RedisConn()
-	fd, err := os.Create(filepath.Join(filePath, chunkIndex))
+	fd, err := os.Create(filepath.Join(filePath, uploadID, chunkIndex))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "创建文件请求被拒绝，权限不足"})
 		return
@@ -92,6 +96,16 @@ func CompleteUploadHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "内部服务器错误"})
 		return
 	}
+	for i := 1; i <= totalCount; i++ {
+		src, _ := ioutil.ReadFile(filepath.Join(filePath, uploadID, strconv.Itoa(i)))
+		dst, _ := os.OpenFile(filepath.Join(filePath, uploadID, filename), os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		_, err := dst.Write(src)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件合并失败"})
+			return
+		}
+		_ = os.Remove(filepath.Join(filePath, uploadID, strconv.Itoa(i)))
+	}
 	fileMeta := meta.FileMeta{
 		FileSha1: fileHash,
 		FileName: filename,
@@ -101,13 +115,13 @@ func CompleteUploadHandler(c *gin.Context) {
 	}
 	if meta.UpdateFileMetaDB(fileMeta) && db.UserFileUploaded(claims.Username, fileMeta.FileSha1, fileMeta.FileName, fileMeta.FileSize) {
 		c.JSON(http.StatusOK, gin.H{"msg": "文件上传成功", "size": utils.FileSizeConversion(fileSize)})
+		rConn.Del("MP_" + uploadID)
 		return
 	}
 }
 func CancelUploadHandler(c *gin.Context) {
 	uploadId := c.Query("uploadid")
-	pwd, _ := os.Getwd()
-	err := os.RemoveAll(filepath.Join(pwd, "data", uploadId))
+	err := os.RemoveAll(filepath.Join(filePath, uploadId))
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"msg": "上传任务取消失败"})
 		return
@@ -115,4 +129,19 @@ func CancelUploadHandler(c *gin.Context) {
 	rConn := rdb.RedisConn()
 	rConn.Del("MP_" + uploadId)
 	c.JSON(http.StatusOK, gin.H{"msg": "上传任务取消成功"})
+}
+func MultipartUploadStatusHandler(c *gin.Context) {
+	uploadId := c.Query("uploadid")
+	rConn := rdb.RedisConn()
+	data := rConn.HGetAll("MP_" + uploadId).Val()
+	chunkCount := 0
+	for k, v := range data {
+		fmt.Println(k, v)
+		if strings.HasPrefix(k, "chkidx_") {
+			chunkCount++
+		}
+	}
+	totalCount, _ := strconv.Atoi(data["chunkCount"])
+	data["percentage"] = fmt.Sprintf("%.2f", (float64(chunkCount)/float64(totalCount))*100) + "%"
+	c.JSON(http.StatusOK, gin.H{"msg": "获取上传状态信息成功", "data": data})
 }
