@@ -30,7 +30,9 @@ type MultipartUploadInfo struct {
 }
 
 const (
-	filePath = "data"
+	FilePath          = "data"
+	ChunkKeyPrefix    = "MP_"
+	HashUpIDKeyPrefix = "HASH_UPID_"
 )
 
 func InitMultipartUploadHandler(c *gin.Context) {
@@ -47,14 +49,14 @@ func InitMultipartUploadHandler(c *gin.Context) {
 		ChunkCount:  int(math.Ceil(float64(filesize / (5 * 1024 * 1024)))),
 		ChunkExists: make([]int, 0),
 	}
-	rConn.HMSet("MP_"+upInfo.UploadID, map[string]interface{}{
+	rConn.HMSet(ChunkKeyPrefix+upInfo.UploadID, map[string]interface{}{
 		"chunkCount": upInfo.ChunkCount,
 		"fileHash":   upInfo.FileHash,
 		"FileName":   upInfo.FileName,
 		"FileSize":   upInfo.FileSize,
 	})
 	pwd, _ := os.Getwd()
-	_ = os.MkdirAll(filepath.Join(pwd, filePath, upInfo.UploadID), 0777)
+	_ = os.MkdirAll(filepath.Join(pwd, FilePath, upInfo.UploadID), 0777)
 	c.JSON(http.StatusOK, gin.H{"msg": "分块上传文件信息初始化成功", "data": upInfo})
 }
 func UploadPartHandler(c *gin.Context) {
@@ -62,7 +64,7 @@ func UploadPartHandler(c *gin.Context) {
 	chunkIndex := c.PostForm("index")
 	blockFile, err := c.FormFile("blockfile")
 	rConn := rdb.RedisConn()
-	fd, err := os.Create(filepath.Join(filePath, uploadID, chunkIndex))
+	fd, err := os.Create(filepath.Join(FilePath, uploadID, chunkIndex))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "创建文件请求被拒绝，权限不足"})
 		return
@@ -70,7 +72,7 @@ func UploadPartHandler(c *gin.Context) {
 	defer fd.Close()
 	content, err := blockFile.Open()
 	_, _ = io.Copy(fd, content)
-	rConn.HSet("MP_"+uploadID, "chkidx_"+chunkIndex, 1)
+	rConn.HSet(ChunkKeyPrefix+uploadID, "chkidx_"+chunkIndex, 1)
 	c.JSON(http.StatusOK, gin.H{"msg": "chkidx_" + chunkIndex + "上传完成"})
 }
 func CompleteUploadHandler(c *gin.Context) {
@@ -80,7 +82,7 @@ func CompleteUploadHandler(c *gin.Context) {
 	filename := c.PostForm("filename")
 	fileSize, _ := strconv.Atoi(c.PostForm("filesize"))
 	rConn := rdb.RedisConn()
-	data := rConn.HGetAll("MP_" + uploadID).Val()
+	data := rConn.HGetAll(ChunkKeyPrefix + uploadID).Val()
 	if len(data) == 0 {
 		c.JSON(http.StatusOK, gin.H{"msg": "合并失败"})
 	}
@@ -97,14 +99,14 @@ func CompleteUploadHandler(c *gin.Context) {
 		return
 	}
 	for i := 1; i <= totalCount; i++ {
-		src, _ := ioutil.ReadFile(filepath.Join(filePath, uploadID, strconv.Itoa(i)))
-		dst, _ := os.OpenFile(filepath.Join(filePath, uploadID, filename), os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		src, _ := ioutil.ReadFile(filepath.Join(FilePath, uploadID, strconv.Itoa(i)))
+		dst, _ := os.OpenFile(filepath.Join(FilePath, uploadID, filename), os.O_CREATE|os.O_WRONLY, os.ModePerm)
 		_, err := dst.Write(src)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"msg": "文件合并失败"})
 			return
 		}
-		_ = os.Remove(filepath.Join(filePath, uploadID, strconv.Itoa(i)))
+		_ = os.Remove(filepath.Join(FilePath, uploadID, strconv.Itoa(i)))
 	}
 	fileMeta := meta.FileMeta{
 		FileSha1: fileHash,
@@ -115,25 +117,25 @@ func CompleteUploadHandler(c *gin.Context) {
 	}
 	if meta.UpdateFileMetaDB(fileMeta) && db.UserFileUploaded(claims.Username, fileMeta.FileSha1, fileMeta.FileName, fileMeta.FileSize) {
 		c.JSON(http.StatusOK, gin.H{"msg": "文件上传成功", "size": utils.FileSizeConversion(fileSize)})
-		rConn.Del("MP_" + uploadID)
+		rConn.Del(ChunkKeyPrefix + uploadID)
 		return
 	}
 }
 func CancelUploadHandler(c *gin.Context) {
 	uploadId := c.Query("uploadid")
-	err := os.RemoveAll(filepath.Join(filePath, uploadId))
+	err := os.RemoveAll(filepath.Join(FilePath, uploadId))
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"msg": "上传任务取消失败"})
 		return
 	}
 	rConn := rdb.RedisConn()
-	rConn.Del("MP_" + uploadId)
+	rConn.Del(ChunkKeyPrefix + uploadId)
 	c.JSON(http.StatusOK, gin.H{"msg": "上传任务取消成功"})
 }
 func MultipartUploadStatusHandler(c *gin.Context) {
 	uploadId := c.Query("uploadid")
 	rConn := rdb.RedisConn()
-	data := rConn.HGetAll("MP_" + uploadId).Val()
+	data := rConn.HGetAll(ChunkKeyPrefix + uploadId).Val()
 	chunkCount := 0
 	for k, v := range data {
 		fmt.Println(k, v)
