@@ -20,13 +20,12 @@ import (
 )
 
 type MultipartUploadInfo struct {
-	FileHash    string
-	FileName    string
-	FileSize    int
-	UploadID    string
-	ChunkSize   int
-	ChunkCount  int
-	ChunkExists []int
+	FileHash   string
+	FileName   string
+	FileSize   int
+	UploadID   string
+	ChunkSize  int
+	ChunkCount int
 }
 
 const (
@@ -40,41 +39,22 @@ func InitMultipartUploadHandler(c *gin.Context) {
 	filename := c.PostForm("filename")
 	filesize, _ := strconv.Atoi(c.PostForm("filesize"))
 	rConn := rdb.RedisConn()
-	uploadID := rConn.Get(HashUpIDKeyPrefix + fileHash).Val()
-	chunkExists := make([]int, 0)
-	fmt.Println(uploadID)
-	if uploadID == "" {
-		//首次上传
-		uploadID = uuid.New().String()
-	} else {
-		//非首次上传，获取redis已有信息
-		chunks := rConn.HGetAll(ChunkKeyPrefix + uploadID).Val()
-		for k, v := range chunks {
-			if strings.HasPrefix(k, "chkidx_") && v == "1" {
-				chunkIdx, _ := strconv.Atoi(k[7:])
-				chunkExists = append(chunkExists, chunkIdx)
-			}
-		}
-	}
 	upInfo := MultipartUploadInfo{
-		FileHash:    fileHash,
-		FileName:    filename,
-		FileSize:    filesize,
-		UploadID:    uploadID,
-		ChunkSize:   5 * 1024 * 1024,
-		ChunkCount:  int(math.Ceil(float64(filesize / (5 * 1024 * 1024)))),
-		ChunkExists: chunkExists,
+		FileHash:   fileHash,
+		FileName:   filename,
+		FileSize:   filesize,
+		UploadID:   uuid.New().String(),
+		ChunkSize:  5 * 1024 * 1024,
+		ChunkCount: int(math.Ceil(float64(filesize / (5 * 1024 * 1024)))),
 	}
-	if len(upInfo.ChunkExists) <= 0 {
-		rConn.HMSet(ChunkKeyPrefix+upInfo.UploadID, map[string]interface{}{
-			"chunkCount": upInfo.ChunkCount,
-			"fileHash":   upInfo.FileHash,
-			"FileName":   upInfo.FileName,
-			"FileSize":   upInfo.FileSize,
-		})
-		rConn.SetNX(HashUpIDKeyPrefix+fileHash, upInfo.UploadID, 43200)
-		_ = os.MkdirAll(filepath.Join(FilePath, upInfo.UploadID), 0777)
-	}
+	rConn.HMSet(ChunkKeyPrefix+upInfo.UploadID, map[string]interface{}{
+		"chunkCount": upInfo.ChunkCount,
+		"fileHash":   upInfo.FileHash,
+		"FileName":   upInfo.FileName,
+		"FileSize":   upInfo.FileSize,
+	})
+	rConn.SetNX(HashUpIDKeyPrefix+fileHash, upInfo.UploadID, 43200)
+	_ = os.MkdirAll(filepath.Join(FilePath, upInfo.UploadID), 0777)
 	c.JSON(http.StatusOK, gin.H{"msg": "分块上传文件信息初始化成功", "data": upInfo})
 }
 func UploadPartHandler(c *gin.Context) {
@@ -140,14 +120,20 @@ func CompleteUploadHandler(c *gin.Context) {
 	}
 }
 func CancelUploadHandler(c *gin.Context) {
-	uploadId := c.Query("uploadid")
-	err := os.RemoveAll(filepath.Join(FilePath, uploadId))
+	rConn := rdb.RedisConn()
+	fileHash := c.Query("filehash")
+	uploadID := rConn.Get(HashUpIDKeyPrefix + fileHash).Val()
+	if uploadID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "请检查请求参数"})
+		return
+	}
+	err := os.RemoveAll(filepath.Join(FilePath, uploadID))
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"msg": "上传任务取消失败"})
 		return
 	}
-	rConn := rdb.RedisConn()
-	rConn.Del(ChunkKeyPrefix + uploadId)
+	rConn.Del(ChunkKeyPrefix + uploadID)
+	rConn.Del(HashUpIDKeyPrefix + fileHash)
 	c.JSON(http.StatusOK, gin.H{"msg": "上传任务取消成功"})
 }
 func MultipartUploadStatusHandler(c *gin.Context) {
