@@ -40,23 +40,41 @@ func InitMultipartUploadHandler(c *gin.Context) {
 	filename := c.PostForm("filename")
 	filesize, _ := strconv.Atoi(c.PostForm("filesize"))
 	rConn := rdb.RedisConn()
+	uploadID := rConn.Get(HashUpIDKeyPrefix + fileHash).Val()
+	chunkExists := make([]int, 0)
+	fmt.Println(uploadID)
+	if uploadID == "" {
+		//首次上传
+		uploadID = uuid.New().String()
+	} else {
+		//非首次上传，获取redis已有信息
+		chunks := rConn.HGetAll(ChunkKeyPrefix + uploadID).Val()
+		for k, v := range chunks {
+			if strings.HasPrefix(k, "chkidx_") && v == "1" {
+				chunkIdx, _ := strconv.Atoi(k[7:])
+				chunkExists = append(chunkExists, chunkIdx)
+			}
+		}
+	}
 	upInfo := MultipartUploadInfo{
 		FileHash:    fileHash,
 		FileName:    filename,
 		FileSize:    filesize,
-		UploadID:    uuid.New().String(),
+		UploadID:    uploadID,
 		ChunkSize:   5 * 1024 * 1024,
 		ChunkCount:  int(math.Ceil(float64(filesize / (5 * 1024 * 1024)))),
-		ChunkExists: make([]int, 0),
+		ChunkExists: chunkExists,
 	}
-	rConn.HMSet(ChunkKeyPrefix+upInfo.UploadID, map[string]interface{}{
-		"chunkCount": upInfo.ChunkCount,
-		"fileHash":   upInfo.FileHash,
-		"FileName":   upInfo.FileName,
-		"FileSize":   upInfo.FileSize,
-	})
-	pwd, _ := os.Getwd()
-	_ = os.MkdirAll(filepath.Join(pwd, FilePath, upInfo.UploadID), 0777)
+	if len(upInfo.ChunkExists) <= 0 {
+		rConn.HMSet(ChunkKeyPrefix+upInfo.UploadID, map[string]interface{}{
+			"chunkCount": upInfo.ChunkCount,
+			"fileHash":   upInfo.FileHash,
+			"FileName":   upInfo.FileName,
+			"FileSize":   upInfo.FileSize,
+		})
+		rConn.SetNX(HashUpIDKeyPrefix+fileHash, upInfo.UploadID, 43200)
+		_ = os.MkdirAll(filepath.Join(FilePath, upInfo.UploadID), 0777)
+	}
 	c.JSON(http.StatusOK, gin.H{"msg": "分块上传文件信息初始化成功", "data": upInfo})
 }
 func UploadPartHandler(c *gin.Context) {
